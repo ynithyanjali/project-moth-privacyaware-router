@@ -22,6 +22,10 @@ Python • FastAPI • Ollama • Gemma • Pytest
 
 This repository documents the design, implementation, experiments, and limitations of Project Moth as development progresses.
 
-## Evaluation
+## Performance Dashboard
 
-Benchmark results, methodology, and implementation details will be added as they are completed.
+Explore Project Moth's interactive-looking, static performance report, generated from reproducible local benchmark measurements.
+
+**Live Dashboard:** [View Benchmark Results](https://ynithyanjali.github.io/project-moth-ai-router/)
+
+The dashboard includes routing distribution, measured local inference latency, and individual benchmark outcomes. Cloud routing is simulated and is not presented as measured cloud performance.
