@@ -1,64 +1,86 @@
 
 import re
 
+# Words that may indicate technical complexity.
+COMPLEXITY_TERMS = (
+    "analyze", "evaluate", "design", "optimize",
+    "architecture", "distributed", "tradeoff",
+    "tradeoffs", "scalability",
+)
+
 
 def contains_sensitive_data(prompt):
-    """Detect basic patterns that may indicate private data."""
+    """Detect some common privacy patterns."""
     email = r"\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b"
     ssn = r"\b\d{3}-\d{2}-\d{4}\b"
 
-    sensitive_words = [
-        "password",
-        "private key",
-        "social security",
-    ]
+    sensitive_words = (
+        "password", "private key", "social security"
+    )
+
+    lower = prompt.lower()
 
     return (
         bool(re.search(email, prompt))
         or bool(re.search(ssn, prompt))
-        or any(word in prompt.lower() for word in sensitive_words)
+        or any(word in lower for word in sensitive_words)
     )
 
 
 def route_prompt(prompt):
-    """Choose a local or simulated cloud route."""
+    """Route a prompt using an explainable score."""
 
     if not isinstance(prompt, str) or not prompt.strip():
         raise ValueError("Prompt must be a non-empty string")
 
+    words = len(prompt.split())
+
+    # Find technical terms in the prompt.
+    matches = [
+        term for term in COMPLEXITY_TERMS
+        if re.search(
+            r"\b" + re.escape(term) + r"\b",
+            prompt.lower()
+        )
+    ]
+
+    # Longer prompts receive two additional points.
+    score = (2 if words > 20 else 0) + len(matches)
+
+    details = {
+        "complexity_score": score,
+        "signals": matches
+    }
+
+    # Privacy checks take priority over complexity.
     if contains_sensitive_data(prompt):
         return {
             "model": "local",
             "reason": "Potentially sensitive information detected",
+            **details
         }
 
-    if len(prompt.split()) <= 20:
+    # High-scoring prompts use simulated cloud routing.
+    if score >= 2:
         return {
-            "model": "local",
-            "reason": "Short prompt suitable for local processing",
+            "model": "simulated_cloud",
+            "reason": "Prompt complexity score reached routing threshold",
+            **details
         }
 
     return {
-        "model": "simulated_cloud",
-        "reason": "Longer prompt selected for simulated cloud routing",
+        "model": "local",
+        "reason": "Low complexity score suitable for local processing",
+        **details
     }
 
 
 if __name__ == "__main__":
-    examples = [
+    examples = (
         "What is machine learning?",
-        "My email is student@example.com",
-        (
-            "Explain how a distributed computer system handles "
-            "thousands of simultaneous requests while maintaining "
-            "reliability, minimizing latency, and recovering from "
-            "unexpected failures across multiple servers."
-        ),
-    ]
+        "Design a distributed system",
+        "My email is demo@example.com",
+    )
 
     for prompt in examples:
-        result = route_prompt(prompt)
-        print(f"Prompt: {prompt}")
-        print(f"Route: {result['model']}")
-        print(f"Reason: {result['reason']}")
-        print()
+        print(prompt, "=>", route_prompt(prompt))
