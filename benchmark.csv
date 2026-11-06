@@ -1,0 +1,7 @@
+prompt_id,route,routing_ms,inference_ms,response_chars,status
+simple_1,local,0.5154,104293.71,3292,success
+simple_2,local,1.4368,,,error_TimeoutError
+simple_3,local,0.6295,104219.94,3849,success
+privacy_1,local,0.2245,73238.55,2970,success
+complex_1,simulated_cloud,0.321,,,simulated_only
+complex_2,simulated_cloud,0.2167,,,simulated_only
