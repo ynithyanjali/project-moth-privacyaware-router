@@ -1,31 +1,27 @@
-# Project Moth
+Project Moth
 
-**Privacy-Aware Model Routing | Research Prototype**
+A small experiment in keeping private prompts off the cloud.
 
-Project Moth explores how  requests can be routed between local language models and simulated cloud services based on prompt characteristics, privacy requirements, and computational cost.
+I wanted to see if a router could look at a prompt and decide whether a local model could handle it, or whether it should go to a (simulated) cloud service. The idea is that anything sensitive stays on my machine.
 
-## Project Goals
+How it works
 
-- Develop an explnable  routing algorithm.
-- Integrate local inference using Ollama.
-- Explore privacy-aware prompt classification.
-- Benchmark routing behavior, latency, and response quality.
-- Compare routing strategies using reproducible experiments.
+Each prompt gets checked for how complex it is, whether it looks private, and roughly what it would cost to run. The router then picks local or cloud, and I log the decision so I can see why it chose what it did. Local prompts run through Ollama with Gemma. Cloud routing is simulated, and no cloud API is ever called.
 
-## Planned Technology Stack
+What I found
 
-Python • FastAPI • Ollama • Gemma • Pytest
+I ran 6 synthetic prompts through it:
 
-## Project Status
+4 went local, 2 went to the simulated cloud (67% / 33%)
+Routing decisions are fast: about 0.56 ms on average
+Local inference is slow: 3 successful local responses averaged about 94 seconds. The two simple prompts took about 104 seconds each, and the privacy prompt about 73 seconds.
 
-**Research and development**
+Limitations
+Six prompts is a tiny sample, and they’re synthetic, so none of this should be read as general performance.
+Local inference on my machine is slow. The routing logic isn’t the bottleneck, the model is.
+Cloud latency is simulated, not measured.
+Stack
 
-This repository documents the design, implementation, experiments, and limitations of Project Moth as development progresses.
+Python, FastAPI, Ollama, Gemma, Pytest
 
-## Performance Dashboard
-
-Explore Project Moth's interactive-looking, static performance report, generated from reproducible local benchmark measurements.
-
-**Live Dashboard:** [View Benchmark Results](https://ynithyanjali.github.io/project-moth--router/)
-
-The dashboard includes routing distribution, measured local inference latency, and individual benchmark outcomes. Cloud routing is simulated and is not presented as measured cloud performance.
+https://ynithyanjali.github.io/project-moth-privacyaware-router/
